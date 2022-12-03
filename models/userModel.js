@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const bcrypt = require('bcryptjs')
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -16,7 +17,8 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         requried: [true, 'Please provide password'],
-        minLength: 8
+        minLength: 8,
+        select: false
     },
 
     passwordConfirm: {
@@ -32,5 +34,19 @@ const userSchema = new mongoose.Schema({
     }
 })
 
+userSchema.pre('save', async function (next) {
+    //only run when password is modified
+    if (!this.isModified('password')) return next();
+    // hashing password
+    this.password = await bcrypt.hash(this.password, 12) // asynchronous version
+    //delete passwordConfirm before saving user to database
+    this.passwordConfirm = undefined
+    next()
+})
+
+//instance method --> method available on all documents
+userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
+    return await bcrypt.compare(candidatePassword, userPassword)
+}
 const User = mongoose.model('User', userSchema)
 module.exports = User

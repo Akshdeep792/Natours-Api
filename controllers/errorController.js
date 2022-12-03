@@ -41,14 +41,14 @@ module.exports = (err, req, res, next) => {
     // console.log(err.stack )
     err.statusCode = err.statusCode || 500
     err.status = err.status || 'error'
-    if (process.env.NODE_ENV === 'developement') {
+    if (process.env.NODE_ENV === 'development') {
         sendErrordev(err, res)
     }
     else if (process.env.NODE_ENV === 'production') {
         let error = { ...err }
         if (error.name === 'CastError') error = handleCastErrorDB(error)
         if (error.code === 11000) error = handleDuplicateFieldsDB(error)
-        if (error.naem === 'ValidationError') error = handleValidationError(error)
+        if (error.name === 'ValidationError') error = handleValidationError(error)
         sendErrorProd(err, res)
     }
 }
