@@ -80,4 +80,23 @@ const protect = catchAsync(async (req, res, next) => {
     req.user = currentUser
     next()
 })
-module.exports = { signup, login, protect }
+
+const restrictTo = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return next(new AppError('You do not have permission to perform this action', 403))
+        }
+        next();
+    }
+}
+const forgotPassword = catchAsync(async (req, res, next) => {
+    //1. get user
+    const user = await User.findOne({ email: req.body.email })
+    if (!user) {
+        return next(new AppError('There is no user with email address', 404))
+    }
+    //2. generate the random token
+
+    //3 sen it to user's email
+})
+module.exports = { signup, login, protect, restrictTo, forgotPassword }
