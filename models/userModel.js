@@ -52,6 +52,11 @@ userSchema.pre('save', async function (next) {
     this.passwordConfirm = undefined
     next()
 })
+userSchema.pre('save', function (next) {
+    if (!this.isModified('password') || this.isNew) return next()
+    this.passwordChangedAt = Date.now() - 1000
+    next()
+})
 
 //instance method --> method available on all documents
 userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
