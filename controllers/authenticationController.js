@@ -10,9 +10,20 @@ const signToken = id => {
         expiresIn: process.env.JWT_TIME
     })
 }
+
+const cookieOptions = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+    // secure: true, https
+    httpOnly: true //cookie can't modify by browser
+}
+if (process.env.NODE_ENV === 'production') {
+    cookieOptions.secure = true
+}
 const createSendToken = (user, statusCode, res) => {
     const token = signToken(user._id)
-    // console.log(token)
+    // console.log(token)j
+    res.cookie('jwt', token, cookieOptions)
+    user.password = undefined //remove the password from the output
     res.status(statusCode).json({
         status: 'success',
         token,
