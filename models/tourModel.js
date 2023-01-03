@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
-
+// const User = require('./userModel')
 const tourSchema = new mongoose.Schema({
 
     name: {
@@ -101,7 +101,13 @@ const tourSchema = new mongoose.Schema({
             day: Number
         }
     ],
-    guides: Array
+    // guides: Array
+    guides: [
+        {
+            type: mongoose.Schema.ObjectId, //object ids
+            ref: 'User'
+        }
+    ]
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -140,6 +146,14 @@ tourSchema.pre('save', function (next) {
 //     this.find({ secretTour: { $ne: true } })
 //     next()
 // })
+
+tourSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'guides',
+        select: '-__v -passwordChangedAt'
+    });
+    next()
+})
 
 //aggregate middleware
 // tourSchema.pre('aggregate', function () {
