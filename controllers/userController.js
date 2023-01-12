@@ -2,7 +2,7 @@ const fs = require('fs')
 const User = require('../models/userModel')
 const AppError = require('../utils/appError')
 const catchAsync = require('../utils/catchAsync')
-
+const factory = require('./handlerFactory')
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {}
     Object.keys(obj).forEach(el => {
@@ -12,21 +12,15 @@ const filterObj = (obj, ...allowedFields) => {
     })
     return newObj
 }
-const getAllUsers = catchAsync(async (req, res, next) => {
-    const users = await User.find()
-    res.status(200).json({
-        status: 'success',
-        results: users.length,
-        data: {
-            users
-        }
-    })
-})
-const getUser = (req, res) => {
-    res.status(500).json({
-        message: "Route not defined"
-    })
+
+const getMe = (req, res, next) => {
+    req.params.id = req.user.id;
+    next()
 }
+
+
+const getUser = factory.getOne(User);
+const getAllUsers = factory.getAll(User);
 const createUser = (req, res) => {
     // console.log(req.body)
     res.status(500).json({
@@ -72,4 +66,4 @@ const deleteUser = (req, res) => {
     })
 }
 
-module.exports = { createUser, getAllUsers, getUser, deleteUser, updateUser, updateMe, deleteMe }
+module.exports = { getMe, createUser, getAllUsers, getUser, deleteUser, updateUser, updateMe, deleteMe }
