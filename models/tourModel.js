@@ -113,6 +113,12 @@ const tourSchema = new mongoose.Schema({
     toObject: { virtuals: true }
 })
 
+//indexes  - make read performace of database much much better
+// tourSchema.index({ price: 1 })
+tourSchema.index({ price: 1, ratingsAverage: -1 })
+tourSchema.index({ slug: 1 })
+
+
 tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7
 })
@@ -125,11 +131,11 @@ tourSchema.virtual('reviews', {
 })
 
 //document middleware
-tourSchema.pre('save', function (next) {
-    this.slug = slugify(this.name, { lower: true })
+// tourSchema.pre('save', function (next) {
+//     this.slug = slugify(this.name, { lower: true })
 
-    next()
-})
+//     next()
+// })
 
 // embedding tours
 // tourSchema.pre('save', async function (next) {
